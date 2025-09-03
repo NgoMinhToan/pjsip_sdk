@@ -1,0 +1,17 @@
+{
+  "cxxNamespace": ["pjsipsdk"],
+  "ios": {
+    "iosModuleName": "PjsipSdk"
+  },
+  "android": {
+    "androidNamespace": ["pjsipsdk"],
+    "androidCxxLibName": "pjsipsdk"
+  },
+  "autolinking": {
+    "PjsipSdk": {
+      "swift": "PjsipSdk",
+      "kotlin": "PjsipSdk"
+    }
+  },
+  "ignorePaths": ["node_modules"]
+}
