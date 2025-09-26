@@ -11,6 +11,10 @@
     "PjsipSdk": {
       "swift": "PjsipSdk",
       "kotlin": "PjsipSdk"
+    },
+    "SIPVideoView": {
+      "swift": "HybridSIPVideoView",
+      "kotlin": "HybridSIPVideoView"
     }
   },
   "ignorePaths": ["node_modules"]
