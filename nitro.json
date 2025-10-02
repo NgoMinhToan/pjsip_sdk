@@ -11,6 +11,10 @@
     "PjsipSdk": {
       "swift": "PjsipSdk",
       "kotlin": "PjsipSdk"
+    },
+    "SIPEventEmitter": {
+      "swift": "HybridSIPEventEmitter",
+      "kotlin": "HybridSIPEventEmitter"
     }
   },
   "ignorePaths": ["node_modules"]
