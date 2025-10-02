@@ -6,10 +6,10 @@ import com.margelo.nitro.pjsipsdk.utils.safeAccountInfo
 
 class HybridSIPAccount(val account: MyAccount): HybridSIPAccountSpec() {
   override var id: Double
-    get() = account.id.toDouble()
+    get() = account.current().id?.toDouble() ?: account.id.toDouble()
     set(value) {}
   override var uri: String?
-    get() = account.safeAccountInfo?.uri
+    get() = account.current().accountInfo?.uri ?: account.safeAccountInfo?.uri
     set(value) {}
   override var domain: String?
     get() = account.current().accountConfig?.regConfig?.registrarUri
@@ -20,9 +20,6 @@ class HybridSIPAccount(val account: MyAccount): HybridSIPAccountSpec() {
       ?.proxies
       ?.let { vec -> Array(vec.size) { i -> vec[i] } }
       ?: emptyArray()
-    set(value) {}
-  override var transport: Transport?
-    get() = SDKManager.getTransport(account.current().accountConfig?.sipConfig?.transportId)
     set(value) {}
   override var contactParams: String?
     get() = account.current().accountConfig?.regConfig?.contactParams

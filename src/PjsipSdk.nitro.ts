@@ -10,38 +10,39 @@ export interface PjsipSdk
 
   requestPermission(): Promise<boolean>;
 
-  createAccount(config: AccountConfig): Promise<string>;
-  removeAccount(accountId: string): void;
+  createAccount(config: AccountConfigData): Promise<SIPAccount | undefined>;
+  removeAccount(accountID: number): Promise<void>;
   getAccounts(): SIPAccount[];
-  getAccount(accountId: string): SIPAccount;
+  getAccount(accountID: number): SIPAccount | undefined;
 
   // Call action
-  makeCall(accountId: string, uri: string): Promise<string>;
-  endCall(callId: string): Promise<void>;
-  answerCall(callId: string): Promise<void>;
-  referCall(callId: string, uri: string): Promise<void>;
-  holdCall(callId: string): Promise<void>;
-  unHoldCall(callId: string): Promise<void>;
-  toggleHold(callId: string): Promise<void>;
-  useSpeaker(callId: string): Promise<void>;
-  useEarpiece(callId: string): Promise<void>;
-  toggleSpeaker(callId: string): Promise<void>;
-  muteCall(callId: string): Promise<void>;
-  unMuteCall(callId: string): Promise<void>;
-  dtmfCall(callId: string): Promise<void>;
+  makeCall(accountID: number, uri: string): Promise<SIPCall | undefined>;
+  endCall(callID: number): Promise<boolean>;
+  answerCall(callID: number): Promise<void>;
+  referCall(callID: number, uri: string): Promise<void>;
+  holdCall(callID: number): Promise<void>;
+  unHoldCall(callID: number): Promise<void>;
+  toggleHold(callID: number): Promise<void>;
+  useSpeaker(callID: number): Promise<void>;
+  useEarpiece(callID: number): Promise<void>;
+  toggleSpeaker(callID: number): Promise<void>;
+  muteCall(callID: number): Promise<void>;
+  unMuteCall(callID: number): Promise<void>;
+  dtmfCall(callID: number): Promise<void>;
 
   // Call
-  getCall(callId: string): SIPCall;
+  getCall(callID: number): SIPCall | undefined;
 }
 
 export enum Transport {
+  TCP,
   UDP,
   TLS,
 }
 
-type AccountConfig = {
+export type AccountConfigData = {
   username: string;
   password: string;
   domain: string;
-  transport: Transport;
+  transport?: Transport;
 };

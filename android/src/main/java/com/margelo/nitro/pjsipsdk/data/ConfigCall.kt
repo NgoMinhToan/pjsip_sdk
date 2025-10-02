@@ -16,7 +16,7 @@ const val CALL_DST_URI  = "sip:3107@C0384.talk.worldfone.cloud"
 const val VIDEO_CAPTURE_DEVICE_ID = -1
 
 // SIP transport listening port
-const val SIP_LISTENING_PORT = 6000
+const val SIP_LISTENING_PORT = 0
 
 /* Constants */
 const val MSG_UPDATE_CALL_INFO      = 1

@@ -1,5 +1,4 @@
 import type { HybridObject } from 'react-native-nitro-modules';
-import type { Transport } from './PjsipSdk.nitro';
 
 export interface SIPAccount
   extends HybridObject<{ ios: 'swift'; android: 'kotlin' }> {
@@ -7,7 +6,6 @@ export interface SIPAccount
   uri: string | null;
   domain: string | null;
   proxy: string[];
-  transport?: Transport;
   contactParams?: string;
   contactUriParams?: string;
   regServer?: string;

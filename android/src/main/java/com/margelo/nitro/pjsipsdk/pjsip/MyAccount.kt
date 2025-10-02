@@ -1,8 +1,10 @@
 package com.margelo.nitro.pjsipsdk.pjsip
 
+import com.margelo.nitro.pjsipsdk.Transport
 import com.margelo.nitro.pjsipsdk.manager.CallManager
 import com.margelo.nitro.pjsipsdk.manager.SDKManager
 import com.margelo.nitro.pjsipsdk.model.AccountState
+import com.margelo.nitro.pjsipsdk.utils.safeAccountInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,12 +25,31 @@ class MyAccount: Account() {
   override fun create(cfg: AccountConfig?) {
     super.create(cfg)
     if (cfg != null) {
-      update { it.copy(accountConfig = cfg) }
+      update { it.copy(
+        accountConfig = cfg,
+        accountInfo = this.safeAccountInfo,
+        id = this.id,
+      ) }
     }
   }
+
+  override fun create(cfg: AccountConfig?, make_default: Boolean) {
+    super.create(cfg, make_default)
+    if (cfg != null) {
+      update { it.copy(
+        accountConfig = cfg,
+        accountInfo = this.safeAccountInfo,
+        id = this.id,
+      ) }
+    }
+  }
+
   override fun onIncomingCall(prm: OnIncomingCallParam) {
     /* Auto answer with 200 for incoming calls  */
     val sdkState = SDKManager.current()
+    if (sdkState.acc == null) {
+      throw Exception("Account is not created")
+    }
     val callManagerState = CallManager.current
     val call = MyCall(sdkState.acc, prm.callId)
     val ansPrm = CallOpParam(true)

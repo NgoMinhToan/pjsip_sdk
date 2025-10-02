@@ -7,7 +7,7 @@ import com.margelo.nitro.pjsipsdk.utils.safeCallInfo
 
 class HybridSIPCall (val call: MyCall): HybridSIPCallSpec() {
   override var id: Double
-    get() = call.call_id.toDouble()
+    get() = call.id.toDouble()
     set(value) {}
   override var accountId: Double
     get() = call.acc.id.toDouble()

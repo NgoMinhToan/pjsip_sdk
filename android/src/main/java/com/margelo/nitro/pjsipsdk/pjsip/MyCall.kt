@@ -1,9 +1,14 @@
 package com.margelo.nitro.pjsipsdk.pjsip
 
+import android.content.Context
+import android.media.AudioManager
+import android.os.Message
+import android.util.Log
+import com.margelo.nitro.NitroModules.Companion.applicationContext
 import com.margelo.nitro.pjsipsdk.data.VIDEO_CAPTURE_DEVICE_ID
 import com.margelo.nitro.pjsipsdk.manager.CallManager
 import com.margelo.nitro.pjsipsdk.manager.SDKManager
-import com.margelo.nitro.pjsipsdk.manager.VideoManager
+//import com.margelo.nitro.pjsipsdk.manager.VideoManager
 import com.margelo.nitro.pjsipsdk.model.CallState
 import com.margelo.nitro.pjsipsdk.utils.safeCallInfo
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,28 +36,14 @@ class MyCall(val acc: Account, val call_id: Int) : Call(acc, call_id) {
   private fun update(transform: (CallState) -> CallState) {
     _state.value = transform(_state.value)
   }
+  companion object {
+    val TAG = "MyCall"
+  }
 
   override fun onCallState(prm: OnCallStateParam?) {
     val ci : CallInfo = this.safeCallInfo ?: return
     update { it.copy(callInfo = ci) }
-    val sdkState = SDKManager.current()
-    sdkState.ep.utilLogWrite(3, "MyCall", "Call state changed to: " + ci.stateText)
-
-    update { it.copy(callInfo = ci) }
-
-    if (ci.state == pjsip_inv_state.PJSIP_INV_STATE_DISCONNECTED) {
-      CallManager.removeCall(call_id)
-      VideoManager.disconnectCall()
-      if (sdkState.previewStarted) {
-        try {
-          VideoPreview(VIDEO_CAPTURE_DEVICE_ID).stop()
-        } catch (e: Exception) {
-          println("Failed stopping video preview" + e.message)
-        }
-        SDKManager.setPreviewStarted(false)
-      }
-      sdkState.ep.utilLogWrite(3, "MyCall", this.dump(true, ""))
-    }
+    SDKManager.callStateChangeCallBack(this)
   }
 
   override fun setHold(prm: CallOpParam?) {
@@ -73,28 +64,29 @@ class MyCall(val acc: Account, val call_id: Int) : Call(acc, call_id) {
   override fun onCallMediaState(prm: OnCallMediaStateParam?) {
     val ci : CallInfo = this.safeCallInfo ?: return
     val sdkState = SDKManager.current()
+    val adm = sdkState.ep.audDevManager()
     val cmiv = ci.media
     for (i in cmiv.indices) {
       val cmi = cmiv[i]
       if (cmi.type == pjmedia_type.PJMEDIA_TYPE_AUDIO &&
-        (cmi.status == pjsua_call_media_status.PJSUA_CALL_MEDIA_ACTIVE ||
-          cmi.status == pjsua_call_media_status.PJSUA_CALL_MEDIA_REMOTE_HOLD))
+        cmi.status == pjsua_call_media_status.PJSUA_CALL_MEDIA_ACTIVE)
       {
+        Log.d(TAG, "Audio media[$i]: type=${cmi.type}, status=${cmi.status}, dir=${cmi.dir}")
         /* Connect ports */
         try {
           val am = getAudioMedia(i)
-          sdkState.ep.audDevManager().captureDevMedia.startTransmit(am)
-          am.startTransmit(sdkState.ep.audDevManager().playbackDevMedia)
+          am.adjustRxLevel(1.5f)
+          am.adjustTxLevel(1.5f)
+          adm.captureDevMedia.startTransmit(am)
+          am.startTransmit(adm.playbackDevMedia)
         } catch (e: Exception) {
-          println("Failed connecting media ports" + e.message)
+          Log.e(TAG, "Failed connecting media ports: ${e.message}")
         }
       } else if ((cmi.type == pjmedia_type.PJMEDIA_TYPE_VIDEO) &&
         (cmi.status == pjsua_call_media_status.PJSUA_CALL_MEDIA_ACTIVE) &&
         (cmi.dir and pjmedia_dir.PJMEDIA_DIR_ENCODING) != 0)
       {
-        // TODO: Handle local view
-//        val m = Message.obtain(sdkState.uiHandler, MSG_SHOW_LOCAL_VIDEO, cmi)
-//        m.sendToTarget()
+        // TODO: Handle remote video
       }
     }
   }
@@ -116,8 +108,6 @@ class MyCall(val acc: Account, val call_id: Int) : Call(acc, call_id) {
       val sdkState = SDKManager.current()
       println("Got remote video format change = " +prm.ev.data.fmtChanged.newWidth + "x" + prm.ev.data.fmtChanged.newHeight)
       // TODO: Handle remote video
-//      val m = Message.obtain(sdkState.uiHandler, MSG_SHOW_REMOTE_VIDEO, cmi)
-//      m.sendToTarget()
     }
   }
 

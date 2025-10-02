@@ -1,5 +1,6 @@
 package com.margelo.nitro.pjsipsdk.manager
 
+import android.util.Log
 import com.margelo.nitro.pjsipsdk.pjsip.MyCall
 import com.margelo.nitro.pjsipsdk.model.CallManagerState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,6 +48,8 @@ object CallManager {
   }
 
   fun findCall(callId: Int): MyCall? {
+    Log.d("CallManager", "findCall: $callId")
+    Log.d("CallManager", "calls: ${_state.value.calls}")
     return _state.value.calls[callId]
   }
 }

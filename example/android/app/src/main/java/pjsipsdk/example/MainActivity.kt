@@ -4,6 +4,7 @@ import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
+import com.margelo.nitro.pjsipsdk.manager.PermissionManager
 
 class MainActivity : ReactActivity() {
 
@@ -19,4 +20,18 @@ class MainActivity : ReactActivity() {
    */
   override fun createReactActivityDelegate(): ReactActivityDelegate =
       DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
+
+  override fun onRequestPermissionsResult(
+    requestCode: Int,
+    permissions: Array<out String>,
+    grantResults: IntArray
+  ) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    PermissionManager.onRequestPermissionsResult(
+      requestCode,
+      permissions,
+      grantResults,
+      this,
+    )
+  }
 }
